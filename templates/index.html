@@ -4,7 +4,7 @@
 
 <h1>Welcome to your Blog</h1>
 {% for post in posts %}
-<h2>{{post.title}}</h2>
+<h2><a href='/blog?id={{post.id}}'>{{post.title}}</a></h2>
 <p>{{post.body}}</p>
 <hr />
 <br>
