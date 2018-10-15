@@ -3,10 +3,12 @@
 {% block content%}
 <form action='/blog' method='post'>
     <label> Title
-        <input type='text' name='title' />
+        <input type='text' name='title' value='{{title}}' />
+        <span>{{title_error}}</span>
     </label>
-    <label> Your post here
-        <textarea name='body'></textarea>
+    <label> Your post here:
+        <textarea name='body'>{{body}}</textarea>
+        <span>{{body_error}}</span>
     </label>
     <input type='submit' value='Submit' />
 </form>
