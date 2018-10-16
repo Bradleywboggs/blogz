@@ -22,6 +22,8 @@ def index():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
+        post_id = request.form['id']
+
         title_error = ''
         body_error = ''
 
@@ -45,10 +47,16 @@ def index():
             new_post = Post(title, body)
             db.session.add(new_post)
             db.session.commit()
-
-    posts = Post.query.all()
-    return render_template('index.html', posts=posts)
-
+            post = Post.query.get(post_id) 
+            return render_template('displaypost.html', title=new_post.title, body=new_post.body )
+    else:
+        if not request.args:
+            posts = Post.query.all()
+            return render_template('index.html', posts=posts)
+        else:
+            post_id = int(request.args.get('id'))
+            post = Post.query.get(post_id)
+            return render_template('displaypost.html',title=post.title, body=post.body)
 
 @app.route('/newpost')
 def add_post():
