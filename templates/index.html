@@ -5,10 +5,9 @@
 <h1>Welcome to your Blog</h1>
 
 {% for post in posts %}
-<form align='center'>
     <h2><a href='/blog?id={{post.id}}'>{{post.title}}</a></h2>
     <p>{{post.body}}</p>
-</form>
+    <p>{{post.pub_date}}</p>
 <hr />
 <br>
 {% endfor %}
