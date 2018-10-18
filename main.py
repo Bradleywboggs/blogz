@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -9,12 +11,16 @@ db = SQLAlchemy(app)
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(120), nullable=False)
-    body = db.Column(db.String(120), nullable=False)
+    title = db.Column(db.String(120))
+    body = db.Column(db.String(120))
+    pub_date = db.Column(db.DateTime)
 
-    def __init__(self, title, body):
+    def __init__(self, title, body, pub_date=None):
         self.title = title
         self.body = body
+        if pub_date is None:
+            pub_date = datetime.utcnow()
+        self.pub_date = pub_date
 
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/blog', methods=['POST', 'GET'])
@@ -28,14 +34,14 @@ def index():
         body_error = ''
 
         if not title:
-            title_error = "This field is required."
+            title_error = "Please enter a title."
             title = ''
         else:
             title = title
             title_error = title_error
     
         if not body:
-            body_error = "This field is required."
+            body_error = "Please write something here."
             body = ''
         else:
             body = body
@@ -51,12 +57,12 @@ def index():
             return render_template('displaypost.html', title=new_post.title, body=new_post.body )
     else:
         if not request.args:
-            posts = Post.query.all()
+            posts = Post.query.order_by(desc(Post.pub_date)).all()
             return render_template('index.html', posts=posts)
         else:
             post_id = int(request.args.get('id'))
             post = Post.query.get(post_id)
-            return render_template('displaypost.html',title=post.title, body=post.body)
+            return render_template('displaypost.html',title=post.title, body=post.body, pub_date=post.pub_date)
 
 @app.route('/newpost')
 def add_post():

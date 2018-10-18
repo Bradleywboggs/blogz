@@ -1,0 +1,46 @@
+body {
+box-sizing: border-box;
+margin: auto;
+width: 1200px;
+text-align: center;
+color: lightskyblue;
+
+
+}
+h1 {
+text-align: center;
+width: 100%;
+font-size: 100px;
+color: white;
+
+}
+
+h2 {
+font-size: 55px;
+}
+p {
+font-size: 40px;
+}
+
+li {
+padding: 10px;
+display: inline-block;
+}
+
+.formcontainer {
+    text-align: center;
+    width: 1200px;
+    margin: 0 auto;
+}
+.formlabel  {
+margin-left: 0;
+color: rgb(6, 6, 58);
+font-size: 30px;
+}
+
+.inputbox {
+margin: auto;
+width: 800px;
+text-align: center;
+
+}

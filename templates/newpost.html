@@ -1,28 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content%}
-<form action='/blog' method='post'>
-    <table>
-        <tbody>
-            <tr>
-                <td><label for='title'>Post Title</label></td>
-            </tr>
-            <tr>
-                <td><input type='text' name='title' value='{{title}}' size=80 /></td>
-                <td><span>{{title_error}}</span></td>
-                <input type='hidden' name='id' value={{id}} />
-            </tr>
-            <tr>
-                <td><label for='body'> Your post here:</label> </td>
-            </tr>
-            <tr>    
-                <td><textarea name='body' rows=30 cols=72>{{body}} </textarea></td>
-                <td><span>{{body_error}}</span></td>
-            </tr>
-            <tr>
-                <td><input type='submit' value='Submit' /></td>
-            </tr>
-        </tbody>
-    </table>
-</form>
+<div class='formcontainer'>
+    <form action='/blog' method='post'>
+        <table>
+            <tbody>
+                <tr>
+                    <td><label for='title'>Post Title</label></td>
+                </tr>
+                <tr>
+                    <td><input class='inputbox' type='text' name='title' value='{{title}}' size=80 /></td>
+                    <td><span>{{title_error}}</span></td>
+                    <input type='hidden' name='id' value={{id}} />
+                </tr>
+                <tr>
+                    <td><label class='formlabel' for='body'> Your post here:</label> </td>
+                </tr>
+                <tr>    
+                    <td><textarea class='inputbox' name='body' rows=30 cols=72>{{body}} </textarea></td>
+                    <td><span>{{body_error}}</span></td>
+                </tr>
+                <tr>
+                    <td><input type='submit' value='Submit' /></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
 {% endblock%}
