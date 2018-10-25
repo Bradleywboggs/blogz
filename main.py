@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from datetime import datetime
+import re
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:blog@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True   
 db = SQLAlchemy(app)
 
@@ -14,13 +15,27 @@ class Post(db.Model):
     title = db.Column(db.String(120))
     body = db.Column(db.String(120))
     pub_date = db.Column(db.DateTime)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body, pub_date=None):
+    def __init__(self, title, body, pub_date=None): #author):
         self.title = title
         self.body = body
         if pub_date is None:
             pub_date = datetime.utcnow()
         self.pub_date = pub_date
+        # self.author = author
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), nullable=False)
+    password = db.Column(db.String(120))
+    # posts = db.relationship('Post', backref='user')
+
+    def __init__(self, email, password):
+        self.email = email
+        self.password = password
+    
 
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/blog', methods=['POST', 'GET'])
