@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from datetime import datetime
@@ -9,6 +9,7 @@ app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True   
 db = SQLAlchemy(app)
+app.secret_key = "*/afdhjajHHDJJ+daa"
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,28 +45,96 @@ def get_login():
 
 @app.route('/login', methods=['POST'])
 def post_login():
-#TODO Validations
-#TODO session['email'] = email
-    return redirect('/')
+    email = request.form.get('email')
+    password = request.form.get('pw')
+    user = User.query.filter_by(email=email).first()
 
-
+    if user and user.password == password:
+        session['email'] = email
+        flash("Login Successful!")
+        return redirect('/')
+    else:
+        flash("Invalid email or password")
+        return redirect('/login')
+    
 @app.route('/signup')
 def get_signup():
     return render_template('signup.html')
 
 @app.route('/signup', methods=['POST'])
 def post_signup():
-    #TODO: Validations
-    #TODO Create User instance in DB
-    return redirect('/')
+    email = request.form['email']
+    password = request.form['pw']
+    verifypw = request.form['verifypw']
+    existing_user = User.query.filter_by(email=email).first()
+
+    email_error = ''
+    password_error = ''
+    verifypw_error = ''
+    duplicate_user_error = ''
+    # Regex pattern looks for alphanumeric characters - minimum 3, no max; '@' symbol, 
+    # at least one alphanumeric, ''.'', at least 2 alphas(case insensitive)
+    email_pattern = re.compile(r'[\w]{3,}[@][\w]+[.][a-zA-Z]{2,}')
+    email_matched = email_pattern.match(email)
+    # Regex pattern checks for non-white space characters - minimum 8, maximum 20
+    pw_pattern = re.compile(r'[^\s]{8,20}')
+    pw_matched = pw_pattern.match(password)
+    
+    #verify email
+    if not email_matched:
+        email_error =  'error'
+        flash('This email is not valid', 'error')
+    else:
+        email = email
+        if existing_user:
+            duplicate_user_error = 'error'
+            flash('User already exists.', 'error')
+        else:
+
+    # validate password
+            if password == '':
+                password_error = 'error'
+                flash('Please enter a password', 'error')
+                password = ''
+                verifypw = ''      
+            elif not pw_matched:
+                password_error = 'error'
+                flash('This password is not valid', 'error')
+                password = ''
+                verifypw = ''    
+        # verify both passwords match
+            elif password != verifypw:
+                verifypw_error = 'error'
+                flash('Passwords do not match.', 'error')
+                password = ''
+                verifypw = ''
+            else:
+                password = password
+                verifypw = verifypw   
+
+    if not email_error and not password_error and not verifypw_error and not duplicate_user_error:
+        new_user = User(email, password)
+        db.session.add(new_user)
+        db.session.commit()
+        session['email'] = email
+        flash('Signup successful!', category='success')
+        return redirect('/')
+    #TODO: Determine if re-rendering template is needed. 
+    else:
+        return render_template('signup.html', 
+        password_error=password_error, email_error=email_error, verifypw_error=verifypw_error,duplicate_user_error=duplicate_user_error,
+        password='', verifypw='', email=email)
 
 @app.route('/logout')
 def logout():
-    #ADD del session['email] = email
+    del session['email']
     return redirect('/login')
+
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/blog', methods=['POST', 'GET'])
 def index():
+    author = User.query.filter_by(email=session['email']).first()
+
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
@@ -91,7 +160,7 @@ def index():
         if title_error or body_error:
             return render_template('newpost.html', title=title, body=body, title_error=title_error, body_error=body_error)
         else:    
-            new_post = Post(title, body)
+            new_post = Post(title, body, author)
             db.session.add(new_post)
             db.session.commit()
             post = Post.query.get(post_id) 
