@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<p>Already have an account? <a href='/login'>Log in</a></p>
+<form method='POST'>
+  <table>
+      <thead><h1>Sign up for The LostBee Blog Space</h1>
+      </thead>
+      <tbody>
+          <tr>
+            <td>
+                <label for="email">Email</label> 
+              </td>
+              <td> 
+                <input name="email" type="text" value="{{email}}" /> 
+                <span hidden class="error" >{{email_error}}</span>
+                <span hidden class="error" >{{duplicate_user_error}}</span>
+             </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="pw">Password</label>
+            </td>
+            <td>  
+              <input name="pw" type="password" /> 
+              <span hidden class="error">{{password_error}}</span>
+            </td>
+           
+        </tr>
+        <tr>
+            <td>
+              <label for="verifypw"> Verify Password</label> 
+           </td>
+           <td>
+              <input name="verifypw" type="password" />
+              <span hidden class="error">{{verifypw_error}}</span>
+           </td>
+        </tr>
+        <tr>
+            <td>
+              <input name="submit" type="submit" value="Submit" />
+            </td>
+
+        </tr>         
+    </tbody>
+    
+  
+</table>
+</form>
+
+
+{% endblock %}
