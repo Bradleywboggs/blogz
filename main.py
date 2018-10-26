@@ -17,26 +17,52 @@ class Post(db.Model):
     pub_date = db.Column(db.DateTime)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body, pub_date=None): #author):
+    def __init__(self, title, body, author, pub_date=None): #author
         self.title = title
         self.body = body
         if pub_date is None:
             pub_date = datetime.utcnow()
         self.pub_date = pub_date
-        # self.author = author
+        self.author = author
 
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120))
-    # posts = db.relationship('Post', backref='user')
+    posts = db.relationship('Post', backref='user')
 
     def __init__(self, email, password):
         self.email = email
         self.password = password
+ # TODO:# require login @app.before_request
+ 
     
+@app.route('/login')
+def get_login():
+    return render_template('login.html')
 
+@app.route('/login', methods=['POST'])
+def post_login():
+#TODO Validations
+#TODO session['email'] = email
+    return redirect('/')
+
+
+@app.route('/signup')
+def get_signup():
+    return render_template('signup.html')
+
+@app.route('/signup', methods=['POST'])
+def post_signup():
+    #TODO: Validations
+    #TODO Create User instance in DB
+    return redirect('/')
+
+@app.route('/logout')
+def logout():
+    #ADD del session['email] = email
+    return redirect('/login')
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/blog', methods=['POST', 'GET'])
 def index():
