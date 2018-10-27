@@ -36,9 +36,14 @@ class User(db.Model):
     def __init__(self, email, password):
         self.email = email
         self.password = password
- # TODO:# require login @app.before_request
- 
-    
+
+
+@app.before_request
+def require_login():
+    allowed_routes = ['get_login', 'post_login', 'get_signup']  
+    if request.endpoint not in allowed_routes and 'email' not in session:
+        return redirect('/login')
+  
 @app.route('/login')
 def get_login():
     return render_template('login.html')
@@ -132,9 +137,10 @@ def logout():
 
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/blog', methods=['POST', 'GET'])
+#TODO: Create a general page with all posts
+#  and a user-specific page with only posts by that user
+#TODO: Determine placement of this- author = User.query.filter_by(email=session['email']).first()
 def index():
-    author = User.query.filter_by(email=session['email']).first()
-
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
@@ -160,6 +166,7 @@ def index():
         if title_error or body_error:
             return render_template('newpost.html', title=title, body=body, title_error=title_error, body_error=body_error)
         else:    
+            
             new_post = Post(title, body, author)
             db.session.add(new_post)
             db.session.commit()
