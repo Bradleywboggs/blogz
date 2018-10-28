@@ -14,7 +14,7 @@ app.secret_key = "*/afdhjajHHDJJ+daa"
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
-    body = db.Column(db.String(120))
+    body = db.Column(db.String(8000))
     pub_date = db.Column(db.DateTime)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -31,7 +31,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120))
-    posts = db.relationship('Post', backref='user')
+    posts = db.relationship('Post', backref='author')
 
     def __init__(self, email, password):
         self.email = email
@@ -40,7 +40,7 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['get_login', 'post_login', 'get_signup']  
+    allowed_routes = ['get_login', 'post_login', 'get_signup', 'post_signup']  
     if request.endpoint not in allowed_routes and 'email' not in session:
         return redirect('/login')
   
@@ -82,7 +82,7 @@ def post_signup():
     email_pattern = re.compile(r'[\w]{3,}[@][\w]+[.][a-zA-Z]{2,}')
     email_matched = email_pattern.match(email)
     # Regex pattern checks for non-white space characters - minimum 8, maximum 20
-    pw_pattern = re.compile(r'[^\s]{8,20}')
+    pw_pattern = re.compile(r'[^\s]{4,20}')
     pw_matched = pw_pattern.match(password)
     
     #verify email
@@ -145,6 +145,7 @@ def index():
         title = request.form['title']
         body = request.form['body']
         post_id = request.form['id']
+        author = User.query.filter_by(email=session['email']).first()
 
         title_error = ''
         body_error = ''
@@ -170,6 +171,7 @@ def index():
             new_post = Post(title, body, author)
             db.session.add(new_post)
             db.session.commit()
+
             post = Post.query.get(post_id) 
             return render_template('displaypost.html', title=new_post.title, body=new_post.body )
     else:
