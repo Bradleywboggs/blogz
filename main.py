@@ -136,8 +136,16 @@ def logout():
     return redirect('/login')
 
 @app.route('/')
+@app.route('/index')
 def index():
-    return render_template('index.html')
+    if not request.args:
+        authors = User.query
+        return render_template('index.html', authors=authors)
+    else:
+        author_id = int(request.args.get('id'))
+        posts = Post.query.filter_by(author_id=author_id).all()
+        return render_template('displayposts.html', posts=posts)
+
 
 @app.route('/blog')
 def get_blogs():
@@ -148,9 +156,7 @@ def get_blogs():
         post_id = int(request.args.get('id'))
         post = Post.query.get(post_id)
         return render_template('displaypost.html',title=post.title, body=post.body, pub_date=post.pub_date)
-#TODO: Create a general page with all posts
-#  and a user-specific page with only posts by that user
-#TODO: Determine placement of this- author = User.query.filter_by(email=session['email']).first()
+
 @app.route('/blog', methods=['POST'])
 def post_blogs():
     title = request.form['title']
@@ -183,8 +189,7 @@ def post_blogs():
         new_post = Post(title, body, author)
         db.session.add(new_post)
         db.session.commit()
-
-        post = Post.query.get(post_id) 
+        post = Post.query.get(post_id) #TODO: Delete this variable assignment?
         return render_template('displaypost.html', title=new_post.title, body=new_post.body )
 
 @app.route('/newpost')
