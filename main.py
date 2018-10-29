@@ -14,7 +14,7 @@ app.secret_key = "*/afdhjajHHDJJ+daa"
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
-    body = db.Column(db.String(8000))
+    body = db.Column(db.String(120)) #TODO: MODELS-Change db.String(120) to more reasonable Superclass.
     pub_date = db.Column(db.DateTime)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
