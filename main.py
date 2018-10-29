@@ -18,7 +18,7 @@ class Post(db.Model):
     pub_date = db.Column(db.DateTime)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body, author, pub_date=None): #author
+    def __init__(self, title, body, author, pub_date=None):
         self.title = title
         self.body = body
         if pub_date is None:
@@ -135,16 +135,20 @@ def logout():
     del session['email']
     return redirect('/login')
 
-@app.route('/', methods=['POST', 'GET'])
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 @app.route('/blog', methods=['POST', 'GET'])
 #TODO: Create a general page with all posts
 #  and a user-specific page with only posts by that user
 #TODO: Determine placement of this- author = User.query.filter_by(email=session['email']).first()
-def index():
+def all_blogs():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
         post_id = request.form['id']
+        pub_date = Post.query.filter_by
         author = User.query.filter_by(email=session['email']).first()
 
         title_error = ''
@@ -177,7 +181,7 @@ def index():
     else:
         if not request.args:
             posts = Post.query.order_by(desc(Post.pub_date)).all()
-            return render_template('index.html', posts=posts)
+            return render_template('allblogs.html', posts=posts)
         else:
             post_id = int(request.args.get('id'))
             post = Post.query.get(post_id)
