@@ -1,3 +1,19 @@
+
+#THE LOST BEE
+# a 'Bee' in this application refers to something akin to the old practice 
+# of  'Quilting Bees' when people from the community would 
+# gather to work on quilt together.In this application, we're translating 
+# this idea into a similar concept where a digital community
+# can gather and work on their own individual crafty projects, 
+# but they can do so together, sharing ideas, tips, resources, etc.
+#  The site will have as its crux the 'BEE' space, 
+# consisting of a page to view and join open bees, view past bees, and start a new bee.
+# The site will also have a standard Blog space for Website's curator,
+# and possibly other users as the curator gives permissions.
+# Finally, the site will have an online store for the website curator's wares 
+# served likely by a third party for security reasons.
+
+
 from flask import Flask, render_template, request, redirect, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
@@ -11,6 +27,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8
 app.config['SQLALCHEMY_ECHO'] = True   
 db = SQLAlchemy(app)
 app.secret_key = "*/afdhjajHHDJJ+daa"
+#TODO: Change to MVC structure.
+
+#TODO: Add 'Bee' class --- 
+#class Bee(db.Model):
+#id = db.Column(db.Integer, primary_key=True)
+#media = db.Column(db.String(120))  
+#creator_id = db.Column(db.Integer, db.ForeignKey('user.id')), etc...
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -26,7 +49,7 @@ class Post(db.Model):
             pub_date = datetime.utcnow()
         self.pub_date = pub_date
         self.author = author
-
+#TODO: Add profile_pic, email, expertise, interests, blog_permissions fields.
 class User(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
@@ -37,13 +60,17 @@ class User(db.Model):
         self.username = username
         self.pw_hash = make_pw_hash(password)
 
-
+#TODO: provide limited access only routes for 'new post', and 'new bee' routes. 
+# i.e. instead of allowed_routes have restricted_routes,  
+# if request.endpoint in restricted_routes...
+#TODO: create  routes for active bees, past bees, create a bee.
 @app.before_request
 def require_login():
     allowed_routes = ['get_login', 'post_login', 'get_signup', 'post_signup']  
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
-  
+ #TODO: Add user account page.
+ 
 @app.route('/login')
 def get_login():
     return render_template('login.html')
@@ -146,7 +173,7 @@ def index():
         posts = Post.query.filter_by(author_id=author_id).all()
         return render_template('displayposts.html', posts=posts, user=user)
 
-
+#TODO: Add delete, edit functionality for posts, if logged-in user is author of original post
 @app.route('/blog')
 def get_blogs():
     if not request.args:
