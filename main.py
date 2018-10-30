@@ -154,8 +154,7 @@ def get_blogs():
     else:
         post_id = int(request.args.get('id'))
         post = Post.query.get(post_id)
-        return render_template('displaypost.html',title=post.title, body=post.body, pub_date=post.pub_date)
-
+        return render_template('displaypost.html',post=post)
 @app.route('/blog', methods=['POST'])
 def post_blogs():
     title = request.form['title']

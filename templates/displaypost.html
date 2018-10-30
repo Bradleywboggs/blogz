@@ -2,8 +2,9 @@
 
 {% block content %}
 
-<h1>{{title}}</h1>
+<h1>{{post.title}}</h1>
 <hr />
-<p>{{body}}</p>
+<p>{{post.body}}</p>
 
+<p>Back to {{post.author.email}}'s<a href='/index?id={{post.author_id}}'> posts</a> </p>
 {% endblock %}
