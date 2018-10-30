@@ -187,8 +187,7 @@ def post_blogs():
         new_post = Post(title, body, author)
         db.session.add(new_post)
         db.session.commit()
-        post = Post.query.get(post_id) #TODO: Delete this variable assignment?
-        return render_template('displaypost.html', title=new_post.title, body=new_post.body )
+        return render_template('displaypost.html',post = new_post)
 
 @app.route('/newpost')
 def add_post():
