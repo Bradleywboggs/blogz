@@ -142,8 +142,9 @@ def index():
         return render_template('index.html', authors=authors)
     else:
         author_id = int(request.args.get('id'))
+        user = User.query.get(author_id)
         posts = Post.query.filter_by(author_id=author_id).all()
-        return render_template('displayposts.html', posts=posts)
+        return render_template('displayposts.html', posts=posts, user=user)
 
 
 @app.route('/blog')
