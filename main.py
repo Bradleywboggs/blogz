@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from datetime import datetime
+from hashutils import make_pw_hash, check_pw_hash
 import re
 
 app = Flask(__name__)
@@ -29,12 +30,12 @@ class Post(db.Model):
 class User(db.Model): #TODO MODELS: Change email to Username
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120))
+    pw_hash = db.Column(db.String(120))
     posts = db.relationship('Post', backref='author', lazy=True)
 
     def __init__(self, email, password):
         self.email = email
-        self.password = password
+        self.pw_hash = make_pw_hash(password)
 
 
 @app.before_request
@@ -53,7 +54,7 @@ def post_login():
     password = request.form.get('pw')
     user = User.query.filter_by(email=email).first()
 
-    if user and user.password == password:
+    if user and check_pw_hash(password, user.pw_hash) == True:
         session['email'] = email
         flash("Login Successful!")
         return redirect('/')
