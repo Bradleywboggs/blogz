@@ -27,21 +27,21 @@ class Post(db.Model):
         self.pub_date = pub_date
         self.author = author
 
-class User(db.Model): #TODO MODELS: Change email to Username
+class User(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    username = db.Column(db.String(120), unique=True, nullable=False)
     pw_hash = db.Column(db.String(120))
     posts = db.relationship('Post', backref='author', lazy=True)
 
-    def __init__(self, email, password):
-        self.email = email
+    def __init__(self, username, password):
+        self.username = username
         self.pw_hash = make_pw_hash(password)
 
 
 @app.before_request
 def require_login():
     allowed_routes = ['get_login', 'post_login', 'get_signup', 'post_signup']  
-    if request.endpoint not in allowed_routes and 'email' not in session:
+    if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
   
 @app.route('/login')
@@ -50,16 +50,16 @@ def get_login():
 
 @app.route('/login', methods=['POST'])
 def post_login():
-    email = request.form.get('email')
+    username = request.form.get('username')
     password = request.form.get('pw')
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(username=username).first()
 
     if user and check_pw_hash(password, user.pw_hash) == True:
-        session['email'] = email
+        session['username'] = username
         flash("Login Successful!")
         return redirect('/')
     else:
-        flash("Invalid email or password")
+        flash("Invalid username or password")
         return redirect('/login')
     
 @app.route('/signup')
@@ -68,29 +68,28 @@ def get_signup():
 
 @app.route('/signup', methods=['POST'])
 def post_signup():
-    email = request.form['email']
+    username = request.form['username']
     password = request.form['pw']
     verifypw = request.form['verifypw']
-    existing_user = User.query.filter_by(email=email).first()
+    existing_user = User.query.filter_by(username=username).first()
 
-    email_error = ''
+    username_error = ''
     password_error = ''
     verifypw_error = ''
     duplicate_user_error = ''
-    # Regex pattern looks for alphanumeric characters - minimum 3, no max; '@' symbol, 
-    # at least one alphanumeric, ''.'', at least 2 alphas(case insensitive)
-    email_pattern = re.compile(r'[\w]{3,}[@][\w]+[.][a-zA-Z]{2,}')
-    email_matched = email_pattern.match(email)
-    # Regex pattern checks for non-white space characters - minimum 8, maximum 20
+    # # Regex pattern checks for non-white space characters - minimum 4, maximum 20
+    username_pattern = re.compile(r'[^\s]{4,20}')
+    username_matched = username_pattern.match(username)
+    # Regex pattern checks for non-white space characters - minimum 4, maximum 20
     pw_pattern = re.compile(r'[^\s]{4,20}')
     pw_matched = pw_pattern.match(password)
     
-    #verify email
-    if not email_matched:
-        email_error =  'error'
-        flash('This email is not valid', 'error')
+    #verify username
+    if not username_matched:
+        username_error =  'error'
+        flash('This username is not valid', 'error')
     else:
-        email = email
+        username = username
         if existing_user:
             duplicate_user_error = 'error'
             flash('User already exists.', 'error')
@@ -117,22 +116,22 @@ def post_signup():
                 password = password
                 verifypw = verifypw   
 
-    if not email_error and not password_error and not verifypw_error and not duplicate_user_error:
-        new_user = User(email, password)
+    if not username_error and not password_error and not verifypw_error and not duplicate_user_error:
+        new_user = User(username, password)
         db.session.add(new_user)
         db.session.commit()
-        session['email'] = email
+        session['username'] = username
         flash('Signup successful!', category='success')
         return redirect('/')
     #TODO: Determine if re-rendering template is needed. 
     else:
         return render_template('signup.html', 
-        password_error=password_error, email_error=email_error, verifypw_error=verifypw_error,duplicate_user_error=duplicate_user_error,
-        password='', verifypw='', email=email)
+        password_error=password_error, username_error=username_error, verifypw_error=verifypw_error,duplicate_user_error=duplicate_user_error,
+        password='', verifypw='', username=username)
 
 @app.route('/logout')
 def logout():
-    del session['email']
+    del session['username']
     return redirect('/login')
 
 @app.route('/')
@@ -162,7 +161,7 @@ def post_blogs():
     body = request.form['body']
     post_id = request.form['id']
     pub_date = Post.query.filter_by
-    author = User.query.filter_by(email=session['email']).first()
+    author = User.query.filter_by(username=session['username']).first()
 
     title_error = ''
     body_error = ''
