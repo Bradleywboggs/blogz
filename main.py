@@ -14,7 +14,7 @@ app.secret_key = "*/afdhjajHHDJJ+daa"
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
-    body = db.Column(db.String(8000))
+    body = db.Column(db.String(120)) #TODO: MODELS-Change db.String(120) to more reasonable Superclass.
     pub_date = db.Column(db.DateTime)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -26,12 +26,11 @@ class Post(db.Model):
         self.pub_date = pub_date
         self.author = author
 
-
-class User(db.Model):
+class User(db.Model): #TODO MODELS: Change email to Username
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120))
-    posts = db.relationship('Post', backref='author')
+    posts = db.relationship('Post', backref='author', lazy=True)
 
     def __init__(self, email, password):
         self.email = email
