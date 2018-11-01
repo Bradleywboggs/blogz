@@ -13,6 +13,7 @@
 # Finally, the site will have an online store for the website curator's wares 
 # served likely by a third party for security reasons.
 
+#TODO: Add Bootstrap! 
 
 from flask import Flask, render_template, request, redirect, session, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -33,7 +34,8 @@ app.secret_key = "*/afdhjajHHDJJ+daa"
 #class Bee(db.Model):
 #id = db.Column(db.Integer, primary_key=True)
 #media = db.Column(db.String(120))  
-#creator_id = db.Column(db.Integer, db.ForeignKey('user.id')), etc...
+#creator_id = db.Column(db.Integer, db.ForeignKey('user.id')), 
+# length = db.Column(db.Integer) (how long it will go for) etc...
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
