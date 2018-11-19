@@ -12,7 +12,7 @@
 # Finally, the site will have an online store for the website curator's wares
 # served likely by a third party for security reasons.
 
-# TODO: Add Bootstrap!
+
 import re
 from datetime import datetime
 
@@ -33,12 +33,25 @@ db = SQLAlchemy(app)
 app.secret_key = "*/afdhjajHHDJJ+daa"
 # TODO: Change to MVC structure.
 
-# TODO: Add 'Bee' class ---
-# class Bee(db.Model):
-# id = db.Column(db.Integer, primary_key=True)
-# media = db.Column(db.String(120))
-# creator_id = db.Column(db.Integer, db.ForeignKey('user.id')),
-# length = db.Column(db.Integer) (how long it will go for) etc...
+
+class Bee(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text)
+    medium = db.Column(db.Text)
+    description = db.Column(db.Text)
+    creator_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    length = db.Column(db.Integer) #(how long it will go for) etc...
+
+    def __init__(self, title, medium, description, creator, length):
+        self.title = title
+        self.medium = medium
+        self.description = description
+        self.creator = creator
+        self.length = length
+    
+    
+    def __repr__(self):
+        return f"Name of bee: {self.title}, creator: {self.creator.username}"
 
 
 class Post(db.Model):
@@ -55,6 +68,9 @@ class Post(db.Model):
             pub_date = datetime.utcnow()
         self.pub_date = pub_date
         self.author = author
+    
+    def __repr__(self):
+        return f'{self.title} by {self.author.username},post id: {self.id}'
 
 
 # TODO: Add profile_pic, email, expertise, interests, blog_permissions fields.
@@ -63,10 +79,15 @@ class User(db.Model):
     username = db.Column(db.String(120), unique=True, nullable=False)
     pw_hash = db.Column(db.String(120))
     posts = db.relationship("Post", backref="author", lazy=True)
+    bees = db.relationship("Bee", backref="creator", lazy=True)
 
     def __init__(self, username, password):
         self.username = username
         self.pw_hash = make_pw_hash(password)
+    
+
+    def __repr__(self):
+        return f"username:{self.username}, id:{self.id}"
 
 
 # TODO: provide limited access only routes for 'new post', and 'new bee' routes.
