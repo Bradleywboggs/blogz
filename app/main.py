@@ -14,33 +14,37 @@
 
 
 import re
+import os
 from datetime import datetime
+from hashutils import make_pw_hash, check_pw_hash
 
 from flask import Flask, render_template, request, redirect, session, flash, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 
-from hashutils import make_pw_hash, check_pw_hash
+# TODO: Change to MVC structure. 'Cause really this file is ridiculous
+#  and should be multiple directories with multiple files....
 
 
 app = Flask(__name__)
-app.config["DEBUG"] = True
+
+# CONFIG DIRECTORY
 app.config[
     "SQLALCHEMY_DATABASE_URI"
-] = "mysql+pymysql://blogz:blogz@localhost:8889/blogz"
-app.config["SQLALCHEMY_ECHO"] = True
+] = os.environ.get('DB_HOST')
+
 db = SQLAlchemy(app)
-app.secret_key = "*/afdhjajHHDJJ+daa"
-# TODO: Change to MVC structure.
+app.secret_key = os.environ.get('SECRET_KEY')
 
 
+# ./Models/
 class Bee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
     medium = db.Column(db.Text)
     description = db.Column(db.Text)
     creator_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    length = db.Column(db.Integer) #(how long it will go for) etc...
+    length = db.Column(db.Integer)
 
     def __init__(self, title, medium, description, creator, length):
         self.title = title
@@ -48,8 +52,7 @@ class Bee(db.Model):
         self.description = description
         self.creator = creator
         self.length = length
-    
-    
+
     def __repr__(self):
         return f"Name of bee: {self.title}, creator: {self.creator.username}"
 
@@ -95,7 +98,7 @@ class User(db.Model):
 # if request.endpoint in restricted_routes...
 # TODO: create  routes for active bees, past bees, create a bee.
 
-
+# OH MAN WE NEED SOME CONTROLLERS UP IN HERE...
 @app.before_request
 def require_login():
     allowed_routes = ["get_login", "post_login", "get_signup", "post_signup"]
@@ -283,11 +286,13 @@ def post_blogs():
 def add_post():
     return render_template("newpost.html")
 
+
 @app.route("/delete")
 def delete_post():
     Post.query.filter_by(id=int(request.args.get("id"))).delete()
     db.session.commit()
     return make_response("",200)
+
 
 if __name__ == "__main__":
     app.run()

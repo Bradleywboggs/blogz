@@ -1,4 +1,4 @@
-from main import Post
+from app.main import Post
 
 
 def login(client, username, password):
